@@ -15,7 +15,7 @@ export default function Capture() {
   }, []);
 
   const startVideo = () => {
-    if (navigator.mediaDevices.getUserMedia) {
+    if (navigator?.mediaDevices?.getUserMedia) {
       const constraints = {
         video: {
           facingMode: { exact: "environment" }, // Request the back camera
@@ -78,7 +78,13 @@ export default function Capture() {
 
   return (
     <div className="border border-red-600">
-      <video ref={videoRef} width="640" height="480" autoPlay />
+      <video
+        ref={videoRef}
+        width="640"
+        height="480"
+        autoPlay
+        controls={false}
+      />
       <button onClick={captureAndProcess}>Capture and Detect Contours</button>
       <canvas ref={canvasRef} width="640" height="480" />
     </div>
