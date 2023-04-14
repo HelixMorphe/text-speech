@@ -77,7 +77,7 @@ export default function Capture() {
   };
 
   return (
-    <div>
+    <div className="border border-red-600">
       <video ref={videoRef} width="640" height="480" autoPlay />
       <button onClick={captureAndProcess}>Capture and Detect Contours</button>
       <canvas ref={canvasRef} width="640" height="480" />
