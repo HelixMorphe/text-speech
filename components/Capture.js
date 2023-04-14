@@ -16,8 +16,13 @@ export default function Capture() {
 
   const startVideo = () => {
     if (navigator.mediaDevices.getUserMedia) {
+      const constraints = {
+        video: {
+          facingMode: { exact: "environment" }, // Request the back camera
+        },
+      };
       navigator.mediaDevices
-        .getUserMedia({ video: true })
+        .getUserMedia(constraints)
         .then((stream) => {
           videoRef.current.srcObject = stream;
         })
