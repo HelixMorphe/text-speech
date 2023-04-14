@@ -3,10 +3,10 @@ import cv from "opencv-ts";
 import { BsFillCameraFill } from "react-icons/bs";
 export default function Capture() {
   const canvasRef = useRef();
-  const [opencvReady, setOpencvReady] = useState(false);
-
+  const [opencvReady, setOpencvReady] = useState(true);
+  const [isCaptured, setIsCaptured] = useState(false);
   useEffect(() => {
-    setOpencvReady(true);
+    // setOpencvReady(true);
   }, []);
 
   const handleFileChange = (event) => {
@@ -25,13 +25,14 @@ export default function Capture() {
       console.error("OpenCV.js is not ready");
       return;
     }
+    setIsCaptured(true);
 
     const imageElement = new Image();
     imageElement.src = imageSrc;
 
     imageElement.onload = () => {
       const ctx = canvasRef.current.getContext("2d");
-      ctx.drawImage(imageElement, 0, 0, 640, 480);
+      ctx.drawImage(imageElement, 0, 0, 350, 700);
       const src = cv.imread(canvasRef.current);
       const gray = new cv.Mat();
       const contours = new cv.MatVector();
@@ -88,7 +89,31 @@ export default function Capture() {
           <p className="font-bold">Camera</p>
         </label>
       </div>
-      <canvas className="hidden" ref={canvasRef} width="250" height="250" />
+      <div
+        className={`${
+          isCaptured
+            ? "h-[100dvh] w-[100dvw] absolute top-0 left-0 bg-white p-4"
+            : "hidden"
+        }`}
+      >
+        <div className="grid grid-cols-3">
+          <p></p>
+          <p className="text-center font-bold text-slate-700 text-xl">
+            Contours
+          </p>
+          <p
+            onClick={() => {
+              setIsCaptured(false);
+            }}
+            className="text-end text-red-500"
+          >
+            Close
+          </p>
+        </div>
+        <div>
+          <canvas ref={canvasRef} width="350" height="700" />
+        </div>
+      </div>
     </div>
   );
 }
