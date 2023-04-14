@@ -1,92 +1,94 @@
 import { useRef, useState, useEffect } from "react";
 import cv from "opencv-ts";
+import { BsFillCameraFill } from "react-icons/bs";
 export default function Capture() {
-  const videoRef = useRef();
   const canvasRef = useRef();
   const [opencvReady, setOpencvReady] = useState(false);
 
   useEffect(() => {
-    const loadAndProcessVideo = async () => {
-      setOpencvReady(true);
-      startVideo();
-    };
-
-    loadAndProcessVideo();
+    setOpencvReady(true);
   }, []);
 
-  const startVideo = () => {
-    if (navigator?.mediaDevices?.getUserMedia) {
-      const constraints = {
-        video: {
-          facingMode: { exact: "environment" }, // Request the back camera
-        },
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        captureAndProcess(e.target.result);
       };
-      navigator.mediaDevices
-        .getUserMedia(constraints)
-        .then((stream) => {
-          videoRef.current.srcObject = stream;
-        })
-        .catch((error) => {
-          console.error("Error accessing camera:", error);
-        });
+      reader.readAsDataURL(file);
     }
   };
 
-  const captureAndProcess = () => {
+  const captureAndProcess = (imageSrc) => {
     if (!opencvReady) {
       console.error("OpenCV.js is not ready");
       return;
     }
 
-    const ctx = canvasRef.current.getContext("2d");
-    ctx.drawImage(videoRef.current, 0, 0, 640, 480);
-    const src = cv.imread(canvasRef.current);
-    const gray = new cv.Mat();
-    const contours = new cv.MatVector();
-    const hierarchy = new cv.Mat();
+    const imageElement = new Image();
+    imageElement.src = imageSrc;
 
-    cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
-    cv.Canny(gray, gray, 50, 150, 3, false);
-    cv.findContours(
-      gray,
-      contours,
-      hierarchy,
-      cv.RETR_CCOMP,
-      cv.CHAIN_APPROX_SIMPLE
-    );
+    imageElement.onload = () => {
+      const ctx = canvasRef.current.getContext("2d");
+      ctx.drawImage(imageElement, 0, 0, 640, 480);
+      const src = cv.imread(canvasRef.current);
+      const gray = new cv.Mat();
+      const contours = new cv.MatVector();
+      const hierarchy = new cv.Mat();
 
-    for (let i = 0; i < contours.size(); ++i) {
-      cv.drawContours(
-        src,
+      cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+      cv.Canny(gray, gray, 50, 150, 3, false);
+      cv.findContours(
+        gray,
         contours,
-        i,
-        new cv.Scalar(0, 255, 0),
-        2,
-        8,
         hierarchy,
-        0
+        cv.RETR_CCOMP,
+        cv.CHAIN_APPROX_SIMPLE
       );
-    }
 
-    cv.imshow(canvasRef.current, src);
+      for (let i = 0; i < contours.size(); ++i) {
+        cv.drawContours(
+          src,
+          contours,
+          i,
+          new cv.Scalar(0, 255, 0),
+          2,
+          8,
+          hierarchy,
+          0
+        );
+      }
 
-    src.delete();
-    gray.delete();
-    contours.delete();
-    hierarchy.delete();
+      cv.imshow(canvasRef.current, src);
+
+      src.delete();
+      gray.delete();
+      contours.delete();
+      hierarchy.delete();
+    };
   };
 
   return (
-    <div className="border border-red-600">
-      <video
-        ref={videoRef}
-        width="640"
-        height="480"
-        autoPlay
-        controls={false}
+    <div className="">
+      <input
+        className="border hidden"
+        accept="image/*"
+        id="icon-button-file"
+        type="file"
+        capture="environment"
+        onChange={handleFileChange}
       />
-      <button onClick={captureAndProcess}>Capture and Detect Contours</button>
-      <canvas ref={canvasRef} width="640" height="480" />
+      <div className="flex justify-center p-4">
+        <label
+          className="text-gray-500 bg-white flex flex-col items-center justify-center gap-1 h-[200px] w-full shadow-lg rounded-lg"
+          htmlFor="icon-button-file"
+        >
+          <BsFillCameraFill size={30} />
+          <p className="font-bold">Camera</p>
+        </label>
+      </div>
+      <canvas className="hidden" ref={canvasRef} width="250" height="250" />
     </div>
   );
 }

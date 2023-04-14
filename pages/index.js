@@ -2,7 +2,10 @@ import Head from "next/head";
 import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.css";
 import Capture from "@/components/Capture";
-
+import Navbar from "@/components/Navbar";
+import Gallery from "@/components/Gallery";
+import Repeat from "@/components/Repeat";
+import Help from "@/components/Help";
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
@@ -14,8 +17,20 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className="w-[95%] m-auto max-w-xl">
-        <Capture />
+      <main className=" bg-slate-50 min-h-[100dvh]">
+        <Navbar />
+        <div className="mt-4 px-4">
+          <div>
+            <Capture />
+          </div>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <Gallery />
+            <Repeat />
+          </div>
+          <div className="mb-4">
+            <Help />
+          </div>
+        </div>
       </main>
     </>
   );
